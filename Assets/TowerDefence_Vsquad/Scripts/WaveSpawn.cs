@@ -1,33 +1,42 @@
 ﻿using UnityEngine;
-using System.Collections;
-public class WaveSpawn : MonoBehaviour {
 
-	public int WaveSize;
-	public GameObject EnemyPrefab;
-	public float EnemyInterval;
-	public Transform spawnPoint;
-	public float startTime;
-	public Transform[] WayPoints;
-	int enemyCount=0;
+public class WaveSpawn : MonoBehaviour
+{
+    public GameObject[] enemyPrefabs;
+    public GameObject[] bossPrefabs;
 
-	void Start ()
+    public Transform spawnPoint;
+    public Transform[] wayPoints;
+
+    public void SpawnRandomEnemy()
     {
-	 InvokeRepeating("SpawnEnemy",startTime,EnemyInterval);
-	}
+        if (enemyPrefabs == null || enemyPrefabs.Length == 0) return;
 
-	void Update()
-	{
-		if(enemyCount == WaveSize)
-		{
-			CancelInvoke("SpawnEnemy");
-		}
-	}
+        GameObject selectedEnemy = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+        SpawnEnemyObject(selectedEnemy);
+    }
 
-	void SpawnEnemy()
-	{
-		enemyCount++;
-		GameObject enemy = GameObject.Instantiate(EnemyPrefab,spawnPoint.position,Quaternion.identity) as GameObject;
-		enemy.GetComponent<Enemy>().waypoints = WayPoints;
-      
+    public void SpawnBoss()
+    {
+        if (bossPrefabs == null || bossPrefabs.Length == 0) return;
+
+        GameObject selectedBoss = bossPrefabs[Random.Range(0, bossPrefabs.Length)];
+        SpawnEnemyObject(selectedBoss);
+    }
+
+    void SpawnEnemyObject(GameObject prefab)
+    {
+        if (prefab == null) return;
+        if (spawnPoint == null) return;
+        if (wayPoints == null || wayPoints.Length == 0) return;
+
+        GameObject enemy = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
+
+        EnemyMove enemyMove = enemy.GetComponent<EnemyMove>();
+
+        if (enemyMove != null)
+        {
+            enemyMove.SetWaypoints(wayPoints);
+        }
     }
 }
